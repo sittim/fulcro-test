@@ -34,15 +34,15 @@
   (app/mount! SPA root/Root "app" {:initialize-state? false}))
 
 (comment
-  (merge/merge-component! SPA root/ProblemList {:problem-list/id   1
-                                                :problem-list/problems [{:problem/id    1
-                                                                         :problem/title "First Problem Title"
-                                                                         :problem/summary "First Problem Summary"}]})
+  (merge/merge-component! SPA root/Problem {:problem/id    1
+                                            :problem/title "First Problem Title"
+                                            :problem/summary "First Problem Summary"}
+                          :append [:component/id :main :problems])
 
   (merge/merge-component! SPA root/Problem {:problem/id    2
                                             :problem/title "Second Problem Title"
                                             :problem/summary "Second Problem Summary"}
-                          :append [:problem-list/id 1 :problem-list/problems])
+                          :append [:component/id :main :problems])
 
   (merge/merge-component! SPA root/Solution {:solution/id    1}
                           :solution/summary "First solution Summary"

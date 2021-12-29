@@ -135,7 +135,7 @@
 
 (def ui-login (comp/factory Login))
 
-; ----- MY CODE ---------------------------------------------------------------
+; ----V MY CODE V--------------------------------------------------------------
 
 (defsc Solution [_this {:solution/keys [id summary detail] :as _props}]
   {:query [:solution/id :solution/summary :solution/detail]
@@ -163,31 +163,17 @@
 
 (def ui-problem (comp/factory Problem {:keyfn :problem/id}))
 
-(defsc ProblemList [_this {:problem-list/keys [id problems] :as _props}]
-  {:query [:problem-list/id {:problem-list/problems (comp/get-query Problem)}]
-   :ident :problem-list/id}
-  (div
-   (div "Problem List ID: " id)
-   (h3 "Problems")
-   (ul
-    (map ui-problem problems))))
+; ----^ MY CODE ^--------------------------------------------------------------
 
-(def ui-problem-list (comp/factory ProblemList {:keyfn :problem-list/id}))
-
-; ----- MY CODE ---------------------------------------------------------------
-(defsc Main [_this {:root/keys [problem-list]}]
-  {:query         [{:root/problem-list (comp/get-query ProblemList)}]
+(defsc Main [_this {:main/keys [problems]}]
+  {:query         [{:main/problems (comp/get-query Problem)}]
    :ident         (fn [] [:component/id :main])
    :route-segment ["main"]}
   (div :.ui.container.segment
-    (h3 "Main")
-    (p (str "Welcome to the Fulcro template. "
-         "The Sign up and login functionalities are partially implemented, "
-         "but mostly this is just a blank slate waiting "
-         "for your project."))
-    (dom/div
-     (ui-problem-list problem-list))))
+    (h3 "Main - Problems:")
+    (ul (map ui-problem problems))))
 
+; -----------------------------------------------------------------------------
 (defsc Settings [this {:keys [:account/time-zone :account/real-name] :as props}]
   {:query         [:account/time-zone :account/real-name]
    :ident         (fn [] [:component/id :settings])
