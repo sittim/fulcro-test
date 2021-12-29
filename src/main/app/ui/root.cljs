@@ -2,7 +2,7 @@
   (:require
     [app.model.session :as session]
     [clojure.string :as str]
-    [com.fulcrologic.fulcro.dom :as dom :refer [div ul li p h3 button b]]
+    [com.fulcrologic.fulcro.dom :as dom :refer [div ul li p h2 h3 button b]]
     [com.fulcrologic.fulcro.dom.html-entities :as ent]
     [com.fulcrologic.fulcro.dom.events :as evt]
     [com.fulcrologic.fulcro.application :as app]
@@ -135,9 +135,48 @@
 
 (def ui-login (comp/factory Login))
 
-(defsc Main [this props]
-  {:query         [:main/welcome-message]
-   :initial-state {:main/welcome-message "Hi!"}
+; ----- MY CODE ---------------------------------------------------------------
+
+(defsc Solution [_this {:solution/keys [id summary detail] :as _props}]
+  {:query [:solution/id :solution/summary :solution/detail]
+   :ident :solution/id}
+  (dom/div
+   (div (str "Solution ID: " id))
+   (div (str "Summary: " summary))
+   (div (str "Detail: " detail))))
+
+(def ui-solution (comp/factory Solution {:keyfn :solution/id}))
+
+(defsc Problem [_this {:problem/keys [id title summary solutions] :as _props}]
+  {:query [:problem/id
+           :problem/title
+           :problem/summary
+           :problem/solutions
+           {:problem/solutions (comp/get-query Solution)}]
+   :ident :problem/id}
+  (dom/div
+   (h2 (str "Problem ID - " id))
+   (div (str "Title: " title))
+   (div (str "Summary: " summary))
+   (h3 "Solutions:")
+   (ul (map ui-solution solutions))))
+
+(def ui-problem (comp/factory Problem {:keyfn :problem/id}))
+
+(defsc ProblemList [_this {:problem-list/keys [id problems] :as _props}]
+  {:query [:problem-list/id {:problem-list/problems (comp/get-query Problem)}]
+   :ident :problem-list/id}
+  (div
+   (div "Problem List ID: " id)
+   (h3 "Problems")
+   (ul
+    (map ui-problem problems))))
+
+(def ui-problem-list (comp/factory ProblemList {:keyfn :problem-list/id}))
+
+; ----- MY CODE ---------------------------------------------------------------
+(defsc Main [_this {:root/keys [problem-list]}]
+  {:query         [{:root/problem-list (comp/get-query ProblemList)}]
    :ident         (fn [] [:component/id :main])
    :route-segment ["main"]}
   (div :.ui.container.segment
@@ -145,10 +184,12 @@
     (p (str "Welcome to the Fulcro template. "
          "The Sign up and login functionalities are partially implemented, "
          "but mostly this is just a blank slate waiting "
-         "for your project."))))
+         "for your project."))
+    (dom/div
+     (ui-problem-list problem-list))))
 
 (defsc Settings [this {:keys [:account/time-zone :account/real-name] :as props}]
-  {:query         [:account/time-zone :account/real-name :account/crap]
+  {:query         [:account/time-zone :account/real-name]
    :ident         (fn [] [:component/id :settings])
    :route-segment ["settings"]
    :initial-state {}}

@@ -59,13 +59,14 @@
    ::uism/states
    {:initial
     {::uism/target-states #{:state/logged-in :state/logged-out}
-     ::uism/events        {::uism/started  {::uism/handler (fn [env]
-                                                             (dr/change-route SPA ["main"])
-                                                             (-> env
-                                                               (uism/assoc-aliased :error "")
-                                                               (uism/load ::current-session :actor/current-session
-                                                                 {::uism/ok-event    :event/complete
-                                                                  ::uism/error-event :event/failed})))}
+     ::uism/events        {::uism/started  {::uism/handler 
+                                            (fn [env]
+                                              (dr/change-route SPA ["main"])
+                                              (-> env
+                                                (uism/assoc-aliased :error "")
+                                                (uism/load ::current-session :actor/current-session
+                                                  {::uism/ok-event    :event/complete
+                                                   ::uism/error-event :event/failed})))}
                            :event/failed   {::uism/target-state :state/logged-out}
                            :event/complete {::uism/target-states #{:state/logged-in :state/logged-out}
                                             ::uism/handler       #(process-session-result % "")}}}
@@ -121,3 +122,10 @@
       (boolean (and (valid-email? email) (valid-password? password)
                  (= password password-again))))))
 
+(defmutation change-session-email [_]
+  (action [{:keys [state]}]
+    (log/info (get-in state [:component/id]))))
+
+(comment (signup))
+          
+  

@@ -1,20 +1,20 @@
 (ns app.client
   (:require
-    [app.application :refer [SPA]]
-    [app.ui.root :as root]
-    [com.fulcrologic.fulcro.application :as app]
-    [app.ui.root :as root]
-    [com.fulcrologic.fulcro.networking.http-remote :as net]
-    [com.fulcrologic.fulcro.data-fetch :as df]
-    [com.fulcrologic.fulcro.ui-state-machines :as uism]
-    [com.fulcrologic.fulcro.components :as comp]
-    [com.fulcrologic.fulcro-css.css-injection :as cssi]
-    [app.model.session :as session]
-    [taoensso.timbre :as log]
-    [com.fulcrologic.fulcro.algorithms.denormalize :as fdn]
-    [com.fulcrologic.fulcro.algorithms.merge :as merge]
-    [com.fulcrologic.fulcro.routing.dynamic-routing :as dr]
-    [com.fulcrologic.fulcro.inspect.inspect-client :as inspect]))
+   [app.application :refer [SPA]]
+   [app.ui.root :as root]
+   [com.fulcrologic.fulcro.application :as app]
+   [app.ui.root :as root]
+   [com.fulcrologic.fulcro.networking.http-remote :as net]
+   [com.fulcrologic.fulcro.data-fetch :as df]
+   [com.fulcrologic.fulcro.ui-state-machines :as uism]
+   [com.fulcrologic.fulcro.components :as comp]
+   [com.fulcrologic.fulcro-css.css-injection :as cssi]
+   [app.model.session :as session]
+   [taoensso.timbre :as log]
+   [com.fulcrologic.fulcro.algorithms.denormalize :as fdn]
+   [com.fulcrologic.fulcro.algorithms.merge :as merge]
+   [com.fulcrologic.fulcro.routing.dynamic-routing :as dr]
+   [com.fulcrologic.fulcro.inspect.inspect-client :as inspect]))
 
 (defn ^:export refresh []
   (log/info "Hot code Remount")
@@ -29,17 +29,41 @@
   (dr/initialize! SPA)
   (log/info "Starting session machine.")
   (uism/begin! SPA session/session-machine ::session/session
-    {:actor/login-form      root/Login
-     :actor/current-session root/Session})
+               {:actor/login-form      root/Login
+                :actor/current-session root/Session})
   (app/mount! SPA root/Root "app" {:initialize-state? false}))
 
 (comment
+  (merge/merge-component! SPA root/ProblemList {:problem-list/id   1
+                                                :problem-list/problems [{:problem/id    1
+                                                                         :problem/title "First Problem Title"
+                                                                         :problem/summary "First Problem Summary"}]})
+
+  (merge/merge-component! SPA root/Problem {:problem/id    2
+                                            :problem/title "Second Problem Title"
+                                            :problem/summary "Second Problem Summary"}
+                          :append [:problem-list/id 1 :problem-list/problems])
+
+  (merge/merge-component! SPA root/Solution {:solution/id    1}
+                          :solution/summary "First solution Summary"
+                          :solution/detail "First solution detail"
+                          :append [:problem/id 1 :problem/solutions])
+
+  (merge/merge-component! SPA root/Solution {:solution/id    2}
+                          :solution/summary "Second solution Summary"
+                          :solution/detail "Second solution detail"
+                          :append [:problem/id 1 :problem/solutions])
+
+  (merge/merge-component! SPA root/Solution {:solution/id    3}
+                          :solution/summary "Third solution Summary"
+                          :solution/detail "Third solution detail"
+                          :append [:problem/id 2 :problem/solutions])
   (inspect/app-started! SPA)
   (app/mounted? SPA)
   (app/set-root! SPA root/Root {:initialize-state? true})
   (uism/begin! SPA session/session-machine ::session/session
-    {:actor/login-form      root/Login
-     :actor/current-session root/Session})
+               {:actor/login-form      root/Login
+                :actor/current-session root/Session})
 
   (reset! (::app/state-atom SPA) {})
 
